@@ -1,0 +1,5 @@
+lidar
+*.o
+*.sh
+*.txt
+.depend
