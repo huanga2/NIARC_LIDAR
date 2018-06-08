@@ -21,7 +21,7 @@ debug ?= 1
 ifeq ($(debug),1) 
 	CFLAGS += -g
 else
-	CFLAGS += -O3
+	CFLAGS +=
 endif
 
 all: $(OBJ)
