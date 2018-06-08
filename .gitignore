@@ -2,4 +2,5 @@ lidar
 *.o
 *.sh
 *.txt
+*.csv
 .depend

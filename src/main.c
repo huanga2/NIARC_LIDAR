@@ -36,21 +36,24 @@ int main(int argc, char **argv) {
 	}
 
     // write(sockfd, "\x02\x02\x02\x02\x00\x00\x00\x0F\x73\x52\x4E\x20\x4C\x4D\x44\x73\x63\x61\x6E\x64\x61\x74\x61\x05", 25);
-    write_ex(sockfd, "\02sRN LMDscandata\03");
+    while(1) {
+        write_ex(sockfd, "\02sRN LMDscandata\03");
 
-    char buf[8192];
+        char buf[8192];
 
-    int n;
-    while((n = read(sockfd, buf, 8192))) {
-        // printf("%s", buf);
-        // fprintf(file, "%s", buf);
-        // printf("\n%d\n", n);
-        // fwrite(buf, 100, 1, file);
-        if (buf[n-1] == '\03') {
-            break;
+        int n;
+        while((n = read(sockfd, buf, 8192))) {
+            // printf("%s", buf);
+            // fprintf(file, "%s", buf);
+            // printf("\n%d\n", n);
+            // fwrite(buf, 100, 1, file);
+            if (buf[n-1] == '\03') {
+                break;
+            }
         }
+        parse_output(buf);
+        usleep(200000);
     }
-    parse_output(buf);
 
     return 0;
 }
@@ -61,10 +64,11 @@ int write_ex(int connfd, char *string) {
 }
 
 void parse_output(char *input) {
+    FILE *outcsv = fopen("out.csv", "w");
     input[strlen(input)-1] = '\0';
 
-    int start_angle;
-    int angular_step;
+    double start_angle;
+    double angular_step;
     int num_output;
 
     int i = 0; // Line count
@@ -73,7 +77,9 @@ void parse_output(char *input) {
     while (input != NULL) {
         input++;
         sscanf(input, "%[^ ]", buffer);
-        if (i > 19 && i < 26) {
+        if (i <= 19) {
+        }
+        else if (i > 19 && i < 26) {
             switch(i) {
                 case(20):
                     printf("%s\n", buffer);
@@ -90,12 +96,12 @@ void parse_output(char *input) {
                     printf("Scale factor offset: 0\n");
                     break;
                 case(23):
-                    start_angle = strtol(buffer, NULL, 16);
-                    printf("Start angle: %2.0f\n", (double) 1.0*start_angle/10000);
+                    start_angle = (double) ((int)strtol(buffer, NULL, 16))/10000;
+                    printf("Start angle: %2.0f\n", start_angle);
                     break;
                 case(24):
-                    angular_step = strtol(buffer, NULL, 16);
-                    printf("Angular step: %.2f\n", (double) 1.0*angular_step/10000);
+                    angular_step = (double) strtol(buffer, NULL, 16)/10000;
+                    printf("Angular step: %.2f\n", angular_step);
                     break;
                 case(25):
                     num_output = strtol(buffer, NULL, 16);
@@ -105,8 +111,18 @@ void parse_output(char *input) {
                     break;
             }
         }
+        else if (i - 26 < num_output) {
+            int dist = strtol(buffer, NULL, 16);
+            printf("%.2f,%d\n", start_angle+angular_step*(i-26), dist);
+            fprintf(outcsv, "%.2f,%d\n", start_angle+angular_step*(i-26), dist);
+        }
+        else if (i - 26 >= num_output) {
+            printf("%s\n", buffer);
+        }
 
         input = strchr(input, ' ');
         i++;
     }
+
+    fclose(outcsv);
 }
