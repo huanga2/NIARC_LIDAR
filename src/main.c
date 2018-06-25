@@ -8,7 +8,7 @@
 #include <netdb.h> 
 #include <unistd.h>
 
-#define LIDAR_IP "192.168.0.209"
+#define LIDAR_IP "169.254.233.170"
 #define LIDAR_PORT_A 2112
 
 int write_ex(int connfd, char *string);
