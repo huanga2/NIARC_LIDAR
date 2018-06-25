@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
     memset(&lidar_addr, 0, sizeof(lidar_addr));
     lidar_addr.sin_family = AF_INET;                      // IPv4
     lidar_addr.sin_addr.s_addr = inet_addr(LIDAR_IP);
-    lidar_addr.sin_port = htons(LIDAR_PORT_A);            // Commandline Port
+    lidar_addr.sin_port = htons(LIDAR_PORT_A);
 
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) 
